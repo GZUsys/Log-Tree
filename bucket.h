@@ -32,10 +32,9 @@ struct Bucket {
 };
 void printBucketStats(const std::vector<Bucket*>& buckets);
 void headInsert(Bucket *head, Bucket *bucket) {
-    // 添加严格的参数验证
     if (!head) {
         std::cerr << "Error: headInsert() called with null head pointer\n";
-        return; // 快速失败，避免段错误
+        return; 
     }
     if (!bucket) {
         std::cerr << "Error: headInsert() called with null bucket pointer\n";
@@ -87,10 +86,6 @@ std::vector<Bucket*> getsumone(std::vector<Bucket*> &buckets,double threshold){
                 result.push_back(temp);
                 sumRatio += temp->ratio;
             }
-            // for(int a =0;a<result.size();a++){
-            //     printf("i is %d,result[%d] is %p ptr is %p delete_count is %lu ratio is %lf\n",i,a, result[a], result[a]->ptr, result[a]->delete_count,result[a]->ratio);
-            // }
-            //printf("sumRatio is %lf------------------------------------------------------\n",sumRatio);
             if (sumRatio >= 1) goto out;
             int next_index = 10-10*sumRatio;
             next_index = next_index==0? 1:next_index;
@@ -101,7 +96,6 @@ std::vector<Bucket*> getsumone(std::vector<Bucket*> &buckets,double threshold){
                 if (std::find(result.begin(), result.end(), mblk) != result.end()) continue; // 避免重复
                 result.push_back(mblk);
                 goto out;
-                //return result;
             }
             temp = temp->next;
         }
@@ -131,10 +125,8 @@ Bucket* getmaxratio(std::vector<Bucket*>& buckets) {
 }
 
 int getmax(std::vector<Bucket*>&buckets){
-    double maxRatio = -1;  // 初始化为最小值
-    int maxIndex = -1;            // 如果没有找到则返回-1
-
-    // 遍历所有桶
+    double maxRatio = -1;  
+    int maxIndex = -1;           
     for (int i = 0; i < buckets.size(); ++i) {
         if(buckets[i]->isEmpty()) continue; 
         if(buckets[i]->ratio >maxRatio) {
@@ -163,13 +155,9 @@ void locate(std::vector<Bucket*>& buckets, Bucket* bucket) {
     
 
     int targetIndex = findBucketIndex(bucket->ratio, buckets);
-    
-    // 2. 如果 bucket 已经在某个桶链表上，将其移除
-    // 检查 bucket 是否指向自己（不在链表中）
     bool isAlreadyInList = (bucket->prev != bucket) || (bucket->next != bucket);
     
     if (isAlreadyInList) {
-        // 遍历所有桶，找到 bucket 当前所在的链表
         for (Bucket* head : buckets) {
             Bucket* current = head->next;
             while (current != head) {
@@ -182,7 +170,6 @@ void locate(std::vector<Bucket*>& buckets, Bucket* bucket) {
         }
     }
     
-    // 3. 将 bucket 添加到新的桶链表中（头插法）
     Bucket* head = buckets[targetIndex];
     headInsert(head, bucket);
 }
@@ -234,7 +221,6 @@ void printBucketStats(const std::vector<Bucket*>& buckets) {
                             std::numeric_limits<double>::max() : 
                             static_cast<double>(i + 1) / 10.0;
         
-        // 格式化桶范围显示
         std::cout << "Bucket " << i << " (";
         if (i == buckets.size() - 1) {
             std::cout << "1.00~inf): ";
@@ -242,14 +228,11 @@ void printBucketStats(const std::vector<Bucket*>& buckets) {
             std::cout
                  << lowerBound << "~" << upperBound << "): ";
         }
-        
-        // 处理空桶情况
         if (head->isEmpty()) {
             std::cout << "[EMPTY]\n";
             continue;
         }
         
-        // 收集桶内所有ratio值
         Bucket* current = head->next;
         std::vector<double> ratios;
         while (current != head) {
@@ -257,23 +240,19 @@ void printBucketStats(const std::vector<Bucket*>& buckets) {
             current = current->next;
         }
         
-        // 排序以便阅读
         std::sort(ratios.begin(), ratios.end());
         
-        // 格式化打印输出
        
         std::cout << "[";
         for (size_t j = 0; j < ratios.size(); ++j) {
             std::cout << ratios[j];
             if (j < ratios.size() - 1) {
                 std::cout << ", ";
-                // 控制每行输出数量
                 if (j > 0 && j % 5 == 0) std::cout << "\n                   ";
             }
         }
         std::cout << "]\n";
         
-        // 附加统计信息
         auto [min_it, max_it] = std::minmax_element(ratios.begin(), ratios.end());
         std::cout << "    Items: " << ratios.size() 
              << ", Min: " << *min_it
