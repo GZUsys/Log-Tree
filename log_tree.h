@@ -432,9 +432,9 @@ class page{
 
     page *put(btree* bt, char* left, type_entry_key key, char* right,
        bool flush, bool with_lock, page *invalid_sib = NULL) {
-        if(with_lock) {
-          hdr.mtx->lock(); // Lock the write lock
-        }
+        // if(with_lock) {
+        //   hdr.mtx->lock(); // Lock the write lock
+        // }
 
         register int count_entries = count();
 
@@ -554,8 +554,7 @@ class page{
         else {
           int i = *count_entries - 1, inserted = 0;
           block[*count_entries+1].ptr = block[*count_entries].ptr; 
-          
-          // FAST
+
           for(i = *count_entries - 1; i >= 0; i--) {
             if(key < block[i].key ) {
               block[i+1].ptr = block[i].ptr;
