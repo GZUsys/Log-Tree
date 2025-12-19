@@ -93,7 +93,6 @@ inline void mfence()
 inline void clflush(char *data, int len)
 {
   volatile char *ptr = (char *)((unsigned long)data &~(CACHE_LINE_SIZE-1));
-  mfence();
   for(; ptr<data+len; ptr+=CACHE_LINE_SIZE){
     asm volatile(".byte 0x66; clflush %0" : "+m" (*(volatile char *)ptr));
   }
